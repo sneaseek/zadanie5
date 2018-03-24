@@ -27,7 +27,15 @@ int main() {
         }
         printf("Hracie pole pred strelou:\n");
         drawAttackGrid(); // funkcia vypise herne pole ("attack_grid")
-        deployment_spawn();
+        spawn(5);
+        spawn(4);
+        spawn(4);
+        spawn(3);
+        spawn(3);
+        spawn(3);
+        spawn(2);
+        spawn(2);
+        spawn(1);
         deployment_grid_check();
         printf("\n\n");
         forbidden_grid_check();
@@ -55,4 +63,3 @@ int main() {
         return 0;
     }
 }
-

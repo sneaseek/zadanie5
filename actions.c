@@ -6,6 +6,9 @@
 int i,j;
 int counter_player_1 = 0;
 int counter_player_2 = 0;
+int new_x = -1;
+int new_y = -1;
+int new_orientation = -1;
 
 extern int deployment_grid[GRID_SIZE][GRID_SIZE];
 
@@ -28,6 +31,16 @@ void drawAttackGrid() {
     };
     printf("\n\n");
 }
+
+
+void kokot() {
+    for (i = 0; i < GRID_SIZE; i++) {
+        for (j = 0; j < GRID_SIZE; j++) {
+            deployment_grid[i][j] = current_grid[i][j];
+        }
+    }
+}
+
 
 int checkHit(int row, int col, int playerID) {
     int deployment_value = deployment_grid[row][col];
@@ -75,34 +88,84 @@ int horizontal_or_vertical() {
     return result;
 }
 
-void spawn(int typ_lode) {
-    int x = random_10();
-    int y = random_10();
-    int horiz_vertic = horizontal_or_vertical();
-    switch(horiz_vertic) {
-        case 0:
-            if ((GRID_SIZE - x) >= (GRID_SIZE - typ_lode)){
-                for(i = 0; i < typ_lode; i++)
-                    current_grid[x+i][y] = 1;
-                break;
-            }
-            else{
-                for(i = 0; i < typ_lode; i++)
-                    current_grid[x-i][y] = 1;
-                break;
-            }
-        case 1:
-            if ((GRID_SIZE - y) >= (GRID_SIZE - typ_lode)){
-                for(i = 0; i < typ_lode; i++)
-                    current_grid[x][y+i] = 1;
-                break;
-            }
-            else{
-                for(i = 0; i < typ_lode; i++)
-                    current_grid[x][y-i] = 1;
-                break;
-            }
+void current_grid_check(){
+    for(i = 0; i < GRID_SIZE; i++){
+        printf("\n");
+        for(j = 0; j < GRID_SIZE; j++)
+            printf("%d", current_grid[i][j]);
     }
+}
+
+
+int check_current_forbidden(int x, int y, int length, int orientation) {
+    switch (orientation) {
+        case 0:
+            if ((GRID_SIZE - x) >= (GRID_SIZE - length)) {
+                for(i = 0; i >= length; i++)
+                    if(forbidden_grid[x+i][y] == 2)
+                        return 1;
+            }
+            else {
+                for (i = 0; i < length; i++)
+                    if(forbidden_grid[x-i][y] == 2)
+                        return 1;
+            }
+            break;
+        case 1:
+            if ((GRID_SIZE - y) >= (GRID_SIZE - length)) {
+                for (i = 0; i < length; i++)
+                    if(forbidden_grid[x][y+1] == 2)
+                        return 1;
+            }
+            else {
+                     for (i = 0; i < length; i++)
+                    if(forbidden_grid[x][y-1] == 2)
+                        return 1;
+            }
+            break;
+    }
+    return 0;
+}
+
+void spawn(int typ_lode) {
+    int result = 1;
+    while(result == 1) {
+        new_x = random_10();
+        new_y = random_10();
+        new_orientation = horizontal_or_vertical();
+        result = check_current_forbidden(new_x, new_y, new_orientation, typ_lode);
+    }
+    switch(new_orientation) {
+        case 0:
+            if ((GRID_SIZE - new_x) >= (GRID_SIZE - typ_lode)) {
+                for (i = 0; i < typ_lode; i++) {
+                    current_grid[new_x + i][new_y] = 1;
+                    kokot();
+                }
+            }
+            else {
+                for (i = 0; i < typ_lode; i++) {
+                    current_grid[new_x - i][new_y] = 1;
+                    kokot();
+                }
+            }
+            break;
+        case 1:
+            if ((GRID_SIZE - new_y) >= (GRID_SIZE - typ_lode)){
+                for(i = 0; i < typ_lode; i++) {
+                    current_grid[new_x][new_y + i] = 1;
+                    kokot();
+                }
+            }
+            else {
+                for (i = 0; i < typ_lode; i++) {
+                    current_grid[new_x][new_y - i] = 1;
+                    kokot();
+                }
+            }
+            break;
+    }
+    add_forbidden();
 }
 
 void deployment_grid_check() {
@@ -116,7 +179,7 @@ void deployment_grid_check() {
 void add_forbidden() {
     for (i = 0; i < GRID_SIZE; i++){
         for(j = 0; j < GRID_SIZE; j++){
-            if(deployment_grid[i][j] == 1){
+            if(current_grid[i][j] == 1){
                 forbidden_grid[i+1][j] = 2;
                 forbidden_grid[i][j+1] = 2;
                 forbidden_grid[i+1][j+1] = 2;
@@ -139,80 +202,3 @@ void forbidden_grid_check() {
     }
 }
 
-void generated_deployment_grid(){
-    clear_grid();
-    spawn(5);
-    add_forbidden();
-}
-
-
-void old_spawn(int typ_lode) {
-    int x = random_10();
-    int y = random_10();
-    int horiz_vertic = horizontal_or_vertical();
-    switch(horiz_vertic) {
-        case 0:
-            if ((GRID_SIZE - x) >= (GRID_SIZE - typ_lode)){
-                for(i = 0; i < typ_lode; i++)
-                    deployment_grid[x+i][y] = 1;
-                break;
-            }
-            else{
-                for(i = 0; i < typ_lode; i++)
-                    deployment_grid[x-i][y] = 1;
-                break;
-            }
-        case 1:
-            if ((GRID_SIZE - y) >= (GRID_SIZE - typ_lode)){
-                for(i = 0; i < typ_lode; i++)
-                    deployment_grid[x][y+i] = 1;
-                break;
-            }
-            else{
-                for(i = 0; i < typ_lode; i++)
-                    deployment_grid[x][y-i] = 1;
-                break;
-            }
-    }
-}
-
-void current_grid_check(){
-    for(i = 0; i < GRID_SIZE; i++){
-        printf("\n");
-        for(j = 0; j < GRID_SIZE; j++)
-            printf("%d", current_grid[i][j]);
-    }
-}
-
-int check_current_forbidden(){
-    add_forbidden();
-    for(i = 0; i < GRID_SIZE; i++)
-        for(j = 0; j < GRID_SIZE; j++){
-            if (current_grid[i][j] == 1) {
-                if (forbidden_grid[i][j] == 2)
-                    return 1;
-            }
-            else
-                return 0;
-        }
-}
-
-void deployment_spawn(){
-    int lod, stav;
-    scanf("%d", &lod);
-    spawn(lod);
-    stav = check_current_forbidden();
-    while(stav == 1){
-        for(i = 0; i < GRID_SIZE; i++)
-            for(j = 0; j < GRID_SIZE; j++){
-                current_grid[i][j] = 0;
-            }
-        spawn(lod);
-        stav = check_current_forbidden();
-    }
-    for (i = 0; i < GRID_SIZE; i++)
-        for(j = 0; j < GRID_SIZE; j++){
-            if (current_grid[i][j] == 1)
-                deployment_grid[i][j] = 1;
-        }
-}

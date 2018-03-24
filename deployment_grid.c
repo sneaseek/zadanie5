@@ -22,8 +22,6 @@ int shipsTotal = 27; // 5*1 + 4*2 + 3*3 + 2*2 + 1*1 = 27
 //		0 - voda
 //		1 - lod
 
-
-
 // lode sa v mriezke nesmu navzajom dotykat
 int deployment_grid[GRID_SIZE][GRID_SIZE] = {
         { 1, 0, 0, 0, 1, 1, 1, 0, 0, 0},
